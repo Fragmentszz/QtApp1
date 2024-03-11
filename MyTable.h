@@ -17,4 +17,8 @@ private slots:
     void fillAllBlank();
     void fillAll();
     void bindtb(QTableWidgetItem* item);
+    void addRow();
+    void addRow_r();
+    void addColumn();
+    bool hasEmpty() const;
 };

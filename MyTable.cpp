@@ -1,4 +1,4 @@
-#include"MyTable.h"
+ï»¿#include"MyTable.h"
 
 
 
@@ -8,7 +8,7 @@ MyTable::MyTable(QWidget* parent)
     
     connect(this, &QTableWidget::itemChanged, this, &MyTable::bindtb);
 }
-void MyTable::fillAllBlank()         //Ìî³äÈ«²¿¿Õ°×
+void MyTable::fillAllBlank()         //å¡«å……å…¨éƒ¨ç©ºç™½
 {
     for (int i = 0; i < this->rowCount(); i++)
     {
@@ -17,21 +17,19 @@ void MyTable::fillAllBlank()         //Ìî³äÈ«²¿¿Õ°×
             if (this->item(i, j) == nullptr)
             {
                 int rd = randint(0, 100);
-                //tb[i][j] = rd;
                 this->setItem(i, j, new QTableWidgetItem(N2S(rd)));
             }
         }
     }
 }
 
-void MyTable::fillAll()          //Ìî³äÈ«²¿
+void MyTable::fillAll()          //å¡«å……å…¨éƒ¨
 {
     for (int i = 0; i < this->rowCount(); i++)
     {
         for (int j = 0; j < this->columnCount(); j++)
         {
             int rd = randint(0, 100);
-            //tb[i][j] = rd;
             this->setItem(i, j, new QTableWidgetItem(N2S(rd)));
         }
     }
@@ -51,10 +49,6 @@ void MyTable::bindtb(QTableWidgetItem* item)
     tb[i][j] = S2N(item->text());
 }
 
-
-
-
-
 void MyTable::initTable(pair<int, int> result)
 {
     tb.resize(result.first + 1);
@@ -63,12 +57,75 @@ void MyTable::initTable(pair<int, int> result)
     }
     this->setRowCount(result.first);
     this->setColumnCount(result.second);
+    QStringList header_column;
+    QStringList header_row;
+    for (int i = 0; i < result.second; i++) {
+        QString s = "èµ„æº";
+        s.append(N2S(i + 1));
+        header_column << s;
+    }
+    for (int i = 0; i < result.first; i++) {
+        QString s = "è¿›ç¨‹";
+        s.append(N2S(i + 1));
+        tb[i].resize(result.second + 1);
+        header_row << s;
+    }
+    this->setHorizontalHeaderLabels(header_column);
+    this->setVerticalHeaderLabels(header_row);
 }
 
 
+void MyTable::addRow()
+{
+    int nowrow = this->rowCount();
+    tb.resize(++nowrow + 1);
+    tb[nowrow - 1].resize(this->columnCount());
+    QString s = "è¿›ç¨‹";
+    s.append(N2S(nowrow));
+    this->setRowCount(nowrow);
+    auto tmpItem = new QTableWidgetItem(s);
+    this->setVerticalHeaderItem(nowrow - 1, tmpItem);
+}
 
 
+void MyTable::addRow_r()
+{
+    addRow();
+    int nowrow = this->rowCount();
+    for (int j = 0; j < this->columnCount(); j++)
+    {
+        int rd = randint(0, 100);
+        this->setItem(nowrow-1, j, new QTableWidgetItem(N2S(rd)));
+    }
+}
 
+void MyTable::addColumn()
+{
+    int nowcolumn = this->columnCount();
+    nowcolumn++;
+    for (int i = 0; i < tb.size(); i++){
+        tb[i].resize(nowcolumn + 1);
+    }
+    QString s = "èµ„æº";
+    s.append(N2S(nowcolumn));
+    this->setColumnCount(nowcolumn);
+    auto tmpItem = new QTableWidgetItem(s);
+    this->setHorizontalHeaderItem(nowcolumn - 1, tmpItem);
+}
+bool MyTable::hasEmpty()    const
+{
+    for (int i = 0; i < this->rowCount(); i++)
+    {
+        for (int j = 0; j < this->columnCount(); j++)
+        {
+            if (this->item(i, j) == nullptr)
+            {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 MyTable::~MyTable()
 {
 

@@ -12,7 +12,8 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     QTtry1 w;
     w.setWindowTitle("你是谁");
-    w.setWindowState(Qt::WindowMaximized);
+    w.setGeometry(0, 0, 1440, 960);
+    //w.setWindowState(Qt::WindowMaximized);
     QLabel lab(&w);
     lab.setGeometry(0, 300, 100, 100);
     std::stringstream ss;

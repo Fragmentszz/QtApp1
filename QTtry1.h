@@ -5,7 +5,7 @@
 #include<QTableWidget>
 #include"newProjectWindow.h"
 #include"MyTable.h"
-
+#include"BAWindow.h"
 
 class QTtry1 : public QMainWindow
 {
@@ -20,14 +20,14 @@ public:
     QLabel* lab;
 
     std::vector<std::vector<int>> tb;
-    MyTable *t_now, *t_process;
+    MyTable *t_now, *t_process, *t_allocation, *t_nowR, *t_apply;
     void initTable(pair<int,int> result);
+    BAWindow* baw;
 private slots:
     void newProject();
-
-
-
-
+    void runBA();
+    //void requestEmpty();
+    void tabChange();
     //void fillAllBlank();
     //void fillAll();
     //void bindtb(QTableWidgetItem* item);

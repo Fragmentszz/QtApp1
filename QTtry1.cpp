@@ -5,18 +5,44 @@ QTtry1::QTtry1(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
-    t_now = new MyTable(this);
-    t_process = new MyTable(this);
-    t_process->setGeometry(100, 100, 1440, 700);
-    t_now->setGeometry(0, 800, 1440, 100);
+    t_now = new MyTable(this->ui.MaxAndNeed);
+    t_process = new MyTable(this->ui.MaxAndNeed);
+
+    t_allocation = new MyTable(this->ui.Allocation);
+    t_nowR = new MyTable(this->ui.Allocation);
+    t_apply = new MyTable(this->ui.Allocation);
+
+    t_process->setGeometry(0, 30, 1440, 700);
+    t_now->setGeometry(0, 760, 1440, 60);
+
+    t_allocation->setGeometry(0, 30, 1440, 700);
+    t_nowR->setGeometry(0, 750, 1440, 60);
+    t_apply->setGeometry(0, 830, 1440, 60);
 
     connect(ui.newProject, &QAction::triggered, this, &QTtry1::newProject);
-    QObject::connect(ui.fillNow, &QAction::triggered, t_now, &MyTable::fillAllBlank);
-    QObject::connect(ui.fillAllBlank, &QAction::triggered, t_process, &MyTable::fillAllBlank);
-    connect(ui.fillAll, &QAction::triggered, t_now, &MyTable::fillAll);
+
     connect(ui.fillAll, &QAction::triggered, t_process, &MyTable::fillAll);
-    //connect(ui.tableWidget, &QTableWidget::itemChanged, this, &QTtry1::bindtb);
+    connect(ui.fillAll, &QAction::triggered, t_now, &MyTable::fillAll);
+
+    connect(ui.run, &QAction::triggered, this, &QTtry1::runBA);                                     //运行银行家算法
+
+    connect(ui.fillAll1, &QAction::triggered, t_process, &MyTable::fillAll);                        //随机生成所有
+    connect(ui.fillAllBlank1, &QAction::triggered, t_process, &MyTable::fillAllBlank);              //随机填充空白
+    connect(ui.createBProcess, &QAction::triggered, t_process, &MyTable::addRow);                   //添加空白进程
+    connect(ui.createRProcess, &QAction::triggered, t_process, &MyTable::addRow_r);                 //添加空白进程
+    connect(ui.newResource, &QAction::triggered, t_process, &MyTable::addColumn);                   //添加资源
+
+    connect(ui.fillAll2, &QAction::triggered, t_now, &MyTable::fillAll);                            //随机生成所有现有资源
+    connect(ui.fillAllBlank2, &QAction::triggered, t_now, &MyTable::fillAllBlank);                  //随机填充空白现有资源
+    connect(ui.newResource, &QAction::triggered, t_now, &MyTable::addColumn);                       //添加资源
+
     initTable({ 3, 3 });
+
+    connect(ui.tabWidget, &QTabWidget::currentChanged, this, &QTtry1::tabChange);                   //更换页面
+
+    baw = new BAWindow();
+    baw->hide();
+    this->ui.tabWidget->setCurrentIndex(0);
 }
 
 
@@ -29,88 +55,48 @@ void QTtry1::newProject()           //新项目
         auto result = pw.getResult();
         initTable(result);   
     }
-
 }
+
 void QTtry1::initTable(pair<int,int> result)
 {
-    QStringList header_column;
-    QStringList header_row;
-    tb.resize(result.first + 1);
-    for (int i = 0; i < result.second; i++) {
-        QString s = "资源";
-        s.append(N2S(i + 1));
-        header_column << s;
-    }
-    for (int i = 0; i < result.first; i++) {
-        QString s = "进程";
-        s.append(N2S(i + 1));
-        tb[i].resize(result.second + 1);
-        header_row << s;
-    }
+    t_process->clearContents();
+    t_now->clearContents();
+    
+    
     t_process->initTable(result);
-    t_process->setHorizontalHeaderLabels(header_column);
-    t_process->setVerticalHeaderLabels(header_row);
-
     t_now->initTable({1, result.second });
-    t_now->setHorizontalHeaderLabels(header_column);
 }
 
+void QTtry1::runBA()
+{
+    baw->show();
+}
 
-//void QTtry1::fillAllBlank()         //填充全部空白
-//{
-//    QTableWidget* table = ui.tableWidget;
-//    for (int i = 0; i < table->rowCount(); i++)
-//    {
-//        for (int j = 0; j < table->columnCount(); j++)
-//        {
-//            if (table->item(i, j) == nullptr)
-//            {
-//                int rd = randint(0, 100);
-//                //tb[i][j] = rd;
-//                table->setItem(i, j, new QTableWidgetItem(N2S(rd)));
-//            }
-//        }
-//    }
-//}
-//
-//
-//
-//void QTtry1::fillAll()          //填充全部
-//{
-//    QTableWidget* table = ui.tableWidget;
-//    for (int i = 0; i < table->rowCount(); i++)
-//    {
-//        for (int j = 0; j < table->columnCount(); j++)
-//        {
-//            int rd = randint(0, 100);
-//            //tb[i][j] = rd;
-//            table->setItem(i, j, new QTableWidgetItem(N2S(rd)));
-//        }
-//    }
-//    for (int i = 0; i < table->rowCount(); i++)
-//    {
-//        for (int j = 0; j < table->columnCount(); j++)
-//        {
-//            cout << tb[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//}
-//
-//void QTtry1::bindtb(QTableWidgetItem* item)
-//{
-//    int i = item->row(), j = item->column();
-//    tb[i][j] = S2N(item->text());
-//}
+void QTtry1::tabChange()
+{
+    if (ui.tabWidget->currentIndex() == 0)   return;
+    if (t_process->hasEmpty())
+    {
+        ui.tabWidget->setCurrentIndex(0);
+        auto critical  = QMessageBox::critical(this, "初始化错误", "进程需求资源量有空值未填！");
+    }
+    else if (t_now->hasEmpty())
+    {
+        ui.tabWidget->setCurrentIndex(0);
+        auto critical = QMessageBox::critical(this, "初始化错误", "资源最大量有空值未填！");
+    }
+    else
+    {
+        //t_allocation->clear();
+        t_allocation->initTable({ t_process->rowCount(),t_process->columnCount() });
 
+        //t_nowR->clear();
+        t_nowR->initTable({ 1,t_process->columnCount() });
 
-
-
-
-
-
-
-
+        //t_apply->clear();
+        t_apply->initTable({ 1,t_process->columnCount() });
+    }
+}
 
 
 QTtry1::~QTtry1()
