@@ -18,14 +18,27 @@ QString N2S(int num)
     return s2;
 }
 
-int S2N(QString s)
+int S2N(QString s)                                          //×¢Òâ¼ì´í
 {
     int res = 0;
-    for (int i = 0; i < s.length(); i++)   res = res * 10 + ((s[i].toLatin1()) - '0');
+    for (int i = 0; i < s.length(); i++) {
+        res = res * 10 + ((s[i].toLatin1()) - '0');
+    }
     return res;
 }
 
 int randint(int l, int r)
 {
     return (rand() % (r - l + 1)) + l;
+}
+
+string stringFromSS(stringstream& ss)
+{
+    string s;
+    string tmp;
+    while (getline(ss, tmp))
+    {
+        s = s + "\n" + tmp;
+    }
+    return s;
 }

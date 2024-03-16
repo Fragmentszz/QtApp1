@@ -1,4 +1,5 @@
-﻿#include "QTtry1.h"
+﻿
+#include "QTtry1.h"
 #include"_basic.h"
 
 QTtry1::QTtry1(QWidget *parent)
@@ -8,16 +9,20 @@ QTtry1::QTtry1(QWidget *parent)
     t_now = new MyTable(this->ui.MaxAndNeed);
     t_process = new MyTable(this->ui.MaxAndNeed);
 
-    t_allocation = new MyTable(this->ui.Allocation);
+    
     t_nowR = new MyTable(this->ui.Allocation);
     t_apply = new MyTable(this->ui.Allocation);
+    t_allocation = new AllocationTable(this->ui.Allocation, t_nowR, t_apply);
+
 
     t_process->setGeometry(0, 30, 1440, 700);
-    t_now->setGeometry(0, 760, 1440, 60);
+    t_now->setGeometry(0, 760, 1440, 70);
 
-    t_allocation->setGeometry(0, 30, 1440, 700);
-    t_nowR->setGeometry(0, 750, 1440, 60);
-    t_apply->setGeometry(0, 830, 1440, 60);
+    t_allocation->setGeometry(0, 30, 1440, 600);
+    t_nowR->setGeometry(0, 650, 1440, 70);
+    t_nowR->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    t_apply->setGeometry(0, 740, 1440, 70);
 
     connect(ui.newProject, &QAction::triggered, this, &QTtry1::newProject);
 
@@ -40,11 +45,20 @@ QTtry1::QTtry1(QWidget *parent)
 
     connect(ui.tabWidget, &QTabWidget::currentChanged, this, &QTtry1::tabChange);                   //更换页面
 
+    connect(ui.createAllocation, &QAction::triggered, t_allocation, &AllocationTable::createAllocation);        //创建分配方案
+
+    connect(ui.createRequest, &QAction::triggered, t_allocation, &AllocationTable::createRequst);                                  //创建请求向量
+
     baw = new BAWindow();
     baw->hide();
     this->ui.tabWidget->setCurrentIndex(0);
 }
 
+void QTtry1::allocationChange(QTableWidgetItem* item)
+{
+    int i = item->row(), j = item->column();
+    int num = S2N(item->text());
+}
 
 void QTtry1::newProject()           //新项目
 {
@@ -53,7 +67,7 @@ void QTtry1::newProject()           //新项目
     if (pw.exec() == QDialog::Accepted) {                      // 返回回调
         // 获取弹窗中的变量a的值
         auto result = pw.getResult();
-        initTable(result);   
+        initTable(result);
     }
 }
 
@@ -62,14 +76,16 @@ void QTtry1::initTable(pair<int,int> result)
     t_process->clearContents();
     t_now->clearContents();
     
-    
     t_process->initTable(result);
     t_now->initTable({1, result.second });
+
+    t_now->verticalHeader()->setVisible(false);
 }
 
 void QTtry1::runBA()
 {
     baw->show();
+    baw->BankAlgorithm(t_process->tb, t_allocation->tb, (t_nowR->tb)[0], ui.needid->value() - 1, (t_apply->tb)[0]);
 }
 
 void QTtry1::tabChange()
@@ -87,14 +103,15 @@ void QTtry1::tabChange()
     }
     else
     {
-        //t_allocation->clear();
-        t_allocation->initTable({ t_process->rowCount(),t_process->columnCount() });
-
         //t_nowR->clear();
         t_nowR->initTable({ 1,t_process->columnCount() });
 
         //t_apply->clear();
         t_apply->initTable({ 1,t_process->columnCount() });
+        //t_allocation->clear();
+        vector<int> tmp = (t_now->tb)[0];
+        vector < vector<int>> tmp2 = t_process->tb;
+        t_allocation->initTable({ t_process->rowCount(),t_process->columnCount() }, tmp, tmp2);
     }
 }
 

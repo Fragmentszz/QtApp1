@@ -10,7 +10,6 @@
 class QTtry1 : public QMainWindow
 {
     Q_OBJECT
-
 public:
     QTtry1(QWidget *parent = nullptr);
     ~QTtry1();
@@ -20,7 +19,8 @@ public:
     QLabel* lab;
 
     std::vector<std::vector<int>> tb;
-    MyTable *t_now, *t_process, *t_allocation, *t_nowR, *t_apply;
+    MyTable *t_now, *t_process, *t_nowR, *t_apply;
+    AllocationTable* t_allocation;
     void initTable(pair<int,int> result);
     BAWindow* baw;
 private slots:
@@ -28,6 +28,7 @@ private slots:
     void runBA();
     //void requestEmpty();
     void tabChange();
+    void allocationChange(QTableWidgetItem* item);
     //void fillAllBlank();
     //void fillAll();
     //void bindtb(QTableWidgetItem* item);
