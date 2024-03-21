@@ -3,11 +3,37 @@
 
 BAWindow::BAWindow(QWidget* parent):QWidget(parent)
 {
+	ui.setupUi(this);
 	this->setWindowTitle("银行家算法执行结果");
-	this->setGeometry(360, 270, 720, 540);
-	tb = new QTextBrowser(this);
+	this->setGeometry(100,100 , 1080, 720);
+	tb = new QTextBrowser(nullptr);
 	tb->setText("empty!");
+	tb->setGeometry(0, 0, 10, 10);
+	ui.webEngineView->load(QUrl("qrc:/new/html/graph.html"));
+	//ui.webEngineView->load(QUrl("https://www.baidu.com"));
+	ui.webEngineView->show();
 }
+QString generateJs(int flag, vector<vector<int>> path)
+{
+	QString jscode = "runBA(";
+	jscode.append((char)(flag + '0'));
+	jscode.append(",[");
+	for (int i = 0; i < path.size(); i++)
+	{
+		jscode.append('[');
+		for (int j = 0; j < path[i].size(); j++)
+		{
+			jscode.append(QString::number(path[i][j]));
+			if (j != path[i].size() - 1)   jscode.append(',');
+		}
+		jscode.append(']');
+		if (i != path.size() - 1)  jscode.append(',');
+	}
+	jscode.append(']');
+	jscode.append(");");
+	return jscode;
+}
+
 
 typedef vector<int> VI;
 static VI operator-(const VI& a, const VI& b)
@@ -55,7 +81,7 @@ void bankAlgorithm(int now)							//内部使用
 		{
 			dflag[i] = 1;
 			dwork = dwork + dallocation[i];
-			dpath[now] = i;
+			dpath[now] = i+1;
 			bankAlgorithm(now + 1);
 			dflag[i] = 0;
 			dwork = dwork - dallocation[i];
@@ -66,19 +92,17 @@ void bankAlgorithm(int now)							//内部使用
 
 void BAWindow::BankAlgorithm(vector<vector<int>>& Need, vector<vector<int>>& allocation, vector<int>& nowR, int needid, vector<int>& apply)
 {
+	QString jscode;
+	dpaths.clear();
 	int n = Need.size(),m = apply.size();
 	for (int j = 0; j < m; j++)
 	{
 		if (apply[j] + allocation[needid][j] > Need[needid][j])
 		{
-			tb->setText("请求资源超过进程总请求");
-			cout << "请求资源超过进程总请求" << endl;
-			;							//请求资源超过进程总请求
+			jscode = generateJs(1, dpaths);
 		}
 		else if (apply[j] > nowR[j]) {
-			tb->setText("请求资源超过现有资源");
-			cout << "请求资源超过现有资源" << endl;
-			;							//请求资源超过现有
+			jscode = generateJs(2, dpaths);
 		}
 	}
 	//vector<vector<int>> hneed;
@@ -102,22 +126,12 @@ void BAWindow::BankAlgorithm(vector<vector<int>>& Need, vector<vector<int>>& all
 	dpaths.clear();
 	dpath.resize(n);
 	bankAlgorithm(0);
-
-
 	if (dpaths.empty()) {
-		tb->setText("不能响应请求！");
-		cout << "不能响应请求！" << endl;
+		jscode = generateJs(3, dpaths);
 	}
 	else {
-		stringstream ss;
-		ss << dpaths.size() << endl;
-		for (VI vi : dpaths) {
-			for (int t : vi) {
-				ss << t << " ";
-			}
-			ss << endl;
-		}
-		string s = stringFromSS(ss);
-		tb->setText(QString::fromStdString(s));
+		jscode = generateJs(4, dpaths);
 	}
+	ui.webEngineView->page()->runJavaScript(jscode);
+	cout << jscode.toStdString() << endl;
 }

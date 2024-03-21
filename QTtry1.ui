@@ -172,7 +172,7 @@
     <addaction name="newProject"/>
     <addaction name="fromExcel"/>
    </widget>
-   <widget class="QMenu" name="project">
+   <widget class="QMenu" name="Project">
     <property name="title">
      <string>项目</string>
     </property>
@@ -209,7 +209,7 @@
     <addaction name="createRequest"/>
    </widget>
    <addaction name="start"/>
-   <addaction name="project"/>
+   <addaction name="Project"/>
    <addaction name="Run"/>
    <addaction name="Process"/>
    <addaction name="Now"/>
@@ -255,8 +255,17 @@
    </property>
   </action>
   <action name="newResource">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>加入新资源</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
    </property>
   </action>
   <action name="fromExcel">

@@ -118,6 +118,7 @@ bool MyTable::hasEmpty()    const
     {
         for (int j = 0; j < this->columnCount(); j++)
         {
+            
             if (this->item(i, j) == nullptr)
             {
                 return 1;

@@ -1,6 +1,8 @@
 #pragma once
 #include <QtWidgets>
 #include"_basic.h"
+#include<QtWebEngineWidgets/QWebEngineView>
+#include"ui_BAWindow.h"
 class BAWindow: 
 	public QWidget
 {
@@ -9,4 +11,8 @@ public:
 	void BankAlgorithm(vector<vector<int>>& Need, vector<vector<int>>& allocation, vector<int>& nowR,int needid, vector<int>& apply);
 
 	QTextBrowser* tb;
+	Ui::Form ui;
+	QWebEngineView *web;
+private:
+
 };

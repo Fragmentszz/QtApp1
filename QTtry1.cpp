@@ -84,35 +84,75 @@ void QTtry1::initTable(pair<int,int> result)
 
 void QTtry1::runBA()
 {
-    baw->show();
-    baw->BankAlgorithm(t_process->tb, t_allocation->tb, (t_nowR->tb)[0], ui.needid->value() - 1, (t_apply->tb)[0]);
+    if (ui.tabWidget->currentIndex() == 0)
+    {
+        auto critical = QMessageBox::critical(this, "拒绝运行！", "请将页面切换到Allocation页面，并且确认资源的分配！");
+    }
+    else if (t_allocation->hasEmpty())
+    {
+        auto critical = QMessageBox::critical(this, "拒绝运行！", "进程的当前分配值有空值！！");
+    }
+    else if(t_apply->hasEmpty())
+    {
+        auto critical = QMessageBox::critical(this, "拒绝运行！", "申请的资源向量有空值！！");
+    }
+    else if (ui.needid->value() < 1 || ui.needid->value() > t_process->rowCount())
+    {
+        auto critical = QMessageBox::critical(this, "拒绝运行！", "申请资源的进程号不对！！！");
+    }
+    else 
+    {
+        baw->show();
+        baw->BankAlgorithm(t_process->tb, t_allocation->tb, (t_nowR->tb)[0], ui.needid->value() - 1, (t_apply->tb)[0]);
+    }
+    
 }
 
 void QTtry1::tabChange()
 {
-    if (ui.tabWidget->currentIndex() == 0)   return;
-    if (t_process->hasEmpty())
+    if (ui.tabWidget->currentIndex() == 0) 
     {
-        ui.tabWidget->setCurrentIndex(0);
-        auto critical  = QMessageBox::critical(this, "初始化错误", "进程需求资源量有空值未填！");
-    }
-    else if (t_now->hasEmpty())
-    {
-        ui.tabWidget->setCurrentIndex(0);
-        auto critical = QMessageBox::critical(this, "初始化错误", "资源最大量有空值未填！");
-    }
-    else
-    {
-        //t_nowR->clear();
-        t_nowR->initTable({ 1,t_process->columnCount() });
+        ui.Run->setEnabled(0);
+        ui.menu_Allocation->setEnabled(0);
 
-        //t_apply->clear();
-        t_apply->initTable({ 1,t_process->columnCount() });
-        //t_allocation->clear();
-        vector<int> tmp = (t_now->tb)[0];
-        vector < vector<int>> tmp2 = t_process->tb;
-        t_allocation->initTable({ t_process->rowCount(),t_process->columnCount() }, tmp, tmp2);
+        ui.start->setEnabled(1);
+        ui.Project->setEnabled(1);
+        ui.Process->setEnabled(1);
+        ui.Now->setEnabled(1);
     }
+    else 
+    {
+        if (t_process->hasEmpty())
+        {
+            ui.tabWidget->setCurrentIndex(0);
+            auto critical = QMessageBox::critical(this, "初始化错误", "进程需求资源量有空值未填！");
+        }
+        else if (t_now->hasEmpty())
+        {
+            ui.tabWidget->setCurrentIndex(0);
+            auto critical = QMessageBox::critical(this, "初始化错误", "资源最大量有空值未填！");
+        }
+        else
+        {
+            //t_nowR->clear();
+            t_nowR->initTable({ 1,t_process->columnCount() });
+
+            //t_apply->clear();
+            t_apply->initTable({ 1,t_process->columnCount() });
+            //t_allocation->clear();
+            vector<int> tmp = (t_now->tb)[0];
+            vector < vector<int>> tmp2 = t_process->tb;
+            t_allocation->initTable({ t_process->rowCount(),t_process->columnCount() }, tmp, tmp2);
+            ui.Run->setEnabled(1);
+            ui.menu_Allocation->setEnabled(1);
+
+            ui.start->setEnabled(0);
+            ui.Project->setEnabled(0);
+            ui.Process->setEnabled(0);
+            ui.Now->setEnabled(0);
+        }
+    }
+
 }
 
 

@@ -1,4 +1,7 @@
 <RCC>
-    <qresource prefix="QTtry1">
+    <qresource prefix="/new">
+        <file>html/echarts.js</file>
+        <file>html/graph.html</file>
+        <file>html/graph.js</file>
     </qresource>
 </RCC>
